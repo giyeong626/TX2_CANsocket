@@ -1,7 +1,10 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
+#include <unistd.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -19,7 +22,8 @@
 #include <unistd.h>
 
 #include <linux/can.h>
-#include <linux/can/raw.h>
+#include <linux/can/bcm.h>
+
 
 
 #define CAN_EFF_FLAG 0x80000000U /* EFF/SFF is set in the MSB */
@@ -27,19 +31,21 @@
 #define CAN_ERR_FLAG 0x20000000U /* error frame */
 
 
-
 class CanComm
 {
+	struct sockaddr_can addr;
+	struct ifreq ifr;
+
 public:
     void CanInit(const std::string&);
-    int SendCanMsg(int32_t, uint8_t *, uint8_t, int32_t);
-    
+    int SendCanMsg(uint16_t can_address, uint8_t *data, size_t length, uint8_t type);
+    int ReadCanMsg(uint16_t *can_address, uint8_t *data, size_t *length);
+    void Close();
 
     int can_port;
 
 private:
     bool port_opened_;
-
 
 
 };
